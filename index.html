@@ -30,15 +30,34 @@
             box-sizing: border-box;
         }
 
+        html {
+            height: 100%;
+            overflow-x: hidden;
+            overscroll-behavior-y: none;
+            -webkit-overflow-scrolling: touch;
+            width: 100%;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
             background: var(--gradient-1);
             background-size: 400% 400%;
-            animation: gradientShift 15s ease infinite;
             min-height: 100vh;
+            min-height: -webkit-fill-available;
             overflow-x: hidden;
+            overflow-y: auto;
             color: #fff;
             transition: background 0.3s;
+            overscroll-behavior-y: none;
+            -webkit-overflow-scrolling: touch;
+            position: relative;
+        }
+
+        /* 桌面端启用背景动画 */
+        @media (min-width: 769px) {
+            body {
+                animation: gradientShift 15s ease infinite;
+            }
         }
 
         @keyframes gradientShift {
@@ -138,6 +157,7 @@
         /* 首屏视觉区 - 霓虹光效 */
         .hero-section {
             min-height: 100vh;
+            min-height: -webkit-fill-available;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -155,8 +175,16 @@
             top: -50%;
             left: -50%;
             background: radial-gradient(circle, rgba(255, 0, 255, 0.3) 0%, rgba(139, 0, 255, 0.2) 30%, rgba(0, 255, 255, 0.2) 60%, transparent 100%);
-            animation: fluidMove 20s ease-in-out infinite;
             filter: blur(60px);
+            will-change: transform;
+            contain: layout style paint;
+        }
+
+        /* 桌面端启用流体动画 */
+        @media (min-width: 769px) {
+            .fluid-bg {
+                animation: fluidMove 20s ease-in-out infinite;
+            }
         }
 
         @keyframes fluidMove {
@@ -179,7 +207,21 @@
             position: absolute;
             font-size: 24px;
             filter: drop-shadow(0 0 10px currentColor);
-            animation: floatGlow 3s ease-in-out infinite;
+            will-change: transform, opacity;
+            contain: layout style paint;
+        }
+
+        /* 移动端减少动画频率 */
+        @media (max-width: 768px) {
+            .star, .confetti {
+                animation: floatGlow 6s ease-in-out infinite;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .star, .confetti {
+                animation: floatGlow 3s ease-in-out infinite;
+            }
         }
 
         .confetti.large {
@@ -188,14 +230,12 @@
 
         @keyframes floatGlow {
             0%, 100% { 
-                transform: translateY(0) translateX(0) scale(1);
+                transform: translate3d(0, 0, 0) scale(1);
                 opacity: 0.8;
-                filter: drop-shadow(0 0 10px currentColor);
             }
             50% { 
-                transform: translateY(-30px) translateX(15px) scale(1.2);
+                transform: translate3d(15px, -30px, 0) scale(1.2);
                 opacity: 1;
-                filter: drop-shadow(0 0 20px currentColor);
             }
         }
 
@@ -245,6 +285,14 @@
             }
         }
 
+        /* 移动端简化霓虹效果 */
+        @media (max-width: 768px) {
+            .main-title {
+                animation: none;
+                filter: drop-shadow(0 0 20px rgba(255, 0, 255, 0.8));
+            }
+        }
+
         /* 日期显示 - 玻璃拟态 */
         .date-display {
             font-size: clamp(18px, 4vw, 28px);
@@ -252,8 +300,8 @@
             margin-top: 30px;
             padding: 15px 30px;
             background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             border: 1px solid var(--glass-border);
             border-radius: 30px;
             display: inline-block;
@@ -263,11 +311,19 @@
             animation: dateFloat 3s ease-in-out infinite;
             position: relative;
             z-index: 10;
+            will-change: transform;
         }
 
         @keyframes dateFloat {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-10px) scale(1.05); }
+            0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+            50% { transform: translate3d(0, -10px, 0) scale(1.05); }
+        }
+
+        /* 移动端暂停日期浮动动画 */
+        @media (max-width: 768px) {
+            .date-display {
+                animation: none;
+            }
         }
 
         /* 烟花特效增强 */
@@ -293,6 +349,8 @@
                 0 0 10px var(--rocket-color),
                 0 0 20px var(--rocket-color);
             animation: rocketRise var(--rise-duration) cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            will-change: transform, opacity;
+            contain: layout style paint;
         }
 
         @keyframes rocketRise {
@@ -361,6 +419,8 @@
                 0 0 10px var(--particle-color),
                 0 0 20px var(--particle-color);
             animation: particleFly 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            will-change: transform, opacity;
+            contain: layout style paint;
         }
 
         @keyframes particleFly {
@@ -379,8 +439,8 @@
             padding: 30px;
             text-align: center;
             background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             margin: 40px 20px;
             border-radius: 30px;
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -392,13 +452,14 @@
             position: relative;
             overflow: hidden;
             opacity: 0;
-            transform: translateY(30px);
+            transform: translate3d(0, 30px, 0);
             transition: opacity 0.6s ease, transform 0.6s ease;
+            will-change: transform, opacity;
         }
 
         .blessing-section.visible {
             opacity: 1;
-            transform: translateY(0);
+            transform: translate3d(0, 0, 0);
         }
 
         .blessing-section::before {
@@ -440,12 +501,15 @@
             background: var(--gradient-2);
             border: none;
             padding: 15px 35px;
+            min-height: 44px;
+            min-width: 44px;
             border-radius: 50px;
             color: white;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            touch-action: manipulation;
+            transition: transform 0.2s, opacity 0.2s;
             box-shadow: 
                 0 4px 15px rgba(255, 0, 255, 0.4),
                 0 0 20px rgba(139, 0, 255, 0.3);
@@ -453,6 +517,7 @@
             overflow: hidden;
             text-transform: uppercase;
             letter-spacing: 1px;
+            will-change: transform;
         }
 
         .blessing-btn::before, .birthday-card-btn::before, .wall-input button::before {
@@ -474,11 +539,13 @@
             height: 300px;
         }
 
-        .blessing-btn:hover, .birthday-card-btn:hover, .wall-input button:hover {
-            transform: scale(1.1) translateY(-2px);
-            box-shadow: 
-                0 6px 25px rgba(255, 0, 255, 0.6),
-                0 0 40px rgba(139, 0, 255, 0.5);
+        @media (hover: hover) and (pointer: fine) {
+            .blessing-btn:hover, .birthday-card-btn:hover, .wall-input button:hover {
+                transform: scale(1.1) translateY(-2px);
+                box-shadow: 
+                    0 6px 25px rgba(255, 0, 255, 0.6),
+                    0 0 40px rgba(139, 0, 255, 0.5);
+            }
         }
 
         .blessing-btn:active, .birthday-card-btn:active, .wall-input button:active {
@@ -496,14 +563,17 @@
         .wall-input input, #wallInput {
             flex: 1;
             padding: 15px 20px;
+            min-height: 50px;
             border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 25px;
-            font-size: 14px;
+            font-size: 16px;
             outline: none;
             background: var(--glass-bg);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             color: #fff;
-            transition: all 0.25s;
+            transition: transform 0.2s, opacity 0.2s, box-shadow 0.2s;
+            will-change: transform, opacity;
         }
 
         .wall-input input::placeholder {
@@ -585,17 +655,19 @@
             text-align: center;
             margin: 40px 20px;
             background: var(--glass-bg);
-            backdrop-filter: blur(30px);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             border-radius: 30px;
             border: 1px solid var(--glass-border);
             opacity: 0;
-            transform: translateY(30px);
+            transform: translate3d(0, 30px, 0);
             transition: opacity 0.6s ease, transform 0.6s ease;
+            will-change: transform, opacity;
         }
 
         .interactive-section.visible {
             opacity: 1;
-            transform: translateY(0);
+            transform: translate3d(0, 0, 0);
         }
 
         .candle-container {
@@ -659,9 +731,10 @@
         .particle {
             position: absolute;
             border-radius: 50%;
-            animation: particleFloat 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            animation: particleFloat 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
             background: radial-gradient(circle, var(--particle-color-light) 0%, var(--particle-color) 100%);
             box-shadow: 0 0 10px var(--particle-color);
+            will-change: transform, opacity;
         }
 
         @keyframes particleFloat {
@@ -690,23 +763,25 @@
 
         .card-content {
             background: var(--glass-bg);
-            backdrop-filter: blur(40px);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             border: 1px solid var(--glass-border);
             padding: 50px;
             border-radius: 30px;
-            max-width: 450px;
+            max-width: 90vw;
+            width: 450px;
             text-align: center;
             box-shadow: 
                 0 20px 60px rgba(0, 0, 0, 0.3),
                 inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            animation: cardAppear 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            animation: cardAppear 0.2s ease-out;
             position: relative;
+            will-change: transform, opacity;
         }
 
         @keyframes cardAppear {
-            0% { transform: scale(0.5) rotate(-10deg); opacity: 0; }
-            60% { transform: scale(1.1) rotate(5deg); }
-            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+            0% { transform: scale(0.95); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
         }
 
         .card-text {
@@ -721,12 +796,15 @@
             background: var(--gradient-2);
             border: none;
             padding: 12px 30px;
+            min-height: 50px;
+            min-width: 50px;
             border-radius: 25px;
             color: white;
             cursor: pointer;
             margin-top: 25px;
-            transition: all 0.25s;
+            transition: transform 0.2s;
             font-weight: 600;
+            touch-action: manipulation;
         }
 
         .close-card:hover {
@@ -738,18 +816,20 @@
             padding: 30px;
             margin: 40px 20px;
             background: var(--glass-bg);
-            backdrop-filter: blur(30px);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             border-radius: 30px;
             border: 1px solid var(--glass-border);
             position: relative;
             opacity: 0;
-            transform: translateY(30px);
+            transform: translate3d(0, 30px, 0);
             transition: opacity 0.6s ease, transform 0.6s ease;
+            will-change: transform, opacity;
         }
 
         .wall-section.visible {
             opacity: 1;
-            transform: translateY(0);
+            transform: translate3d(0, 0, 0);
         }
 
         .wall-title {
@@ -774,6 +854,9 @@
             padding: 20px;
             scrollbar-width: thin;
             scrollbar-color: rgba(255, 0, 255, 0.6) transparent;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            overscroll-behavior-y: contain;
         }
 
         .wall-messages::-webkit-scrollbar {
@@ -789,18 +872,20 @@
             padding: 20px;
             margin: 15px 0;
             background: var(--glass-bg);
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             border-radius: 15px;
             border: 1px solid var(--glass-border);
             animation: slideInFromRight 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             color: #fff;
             line-height: 1.8;
             position: relative;
+            will-change: transform, opacity;
         }
 
         @keyframes slideInFromRight {
-            from { opacity: 0; transform: translateX(50px) scale(0.9); }
-            to { opacity: 1; transform: translateX(0) scale(1); }
+            from { opacity: 0; transform: translate3d(50px, 0, 0) scale(0.9); }
+            to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
         }
 
         .wall-message-actions {
@@ -954,6 +1039,22 @@
             
             .wall-input {
                 flex-direction: column;
+            }
+
+            .blessing-section, .wall-section, .interactive-section {
+                margin: 20px 10px;
+                padding: 20px;
+            }
+        }
+
+        /* 横屏适配 */
+        @media (orientation: landscape) and (max-height: 500px) {
+            .floating-elements {
+                display: none;
+            }
+
+            .blessing-section, .wall-section, .interactive-section {
+                margin: 20px 10px;
             }
         }
 
@@ -1115,6 +1216,10 @@
 
         // 烟花特效 - 从底部升起并爆炸
         function createFirework(startX, startY, targetX, targetY) {
+            // 限制同时存在的烟花数量
+            if (activeFireworks >= maxActiveFireworks) return;
+            activeFireworks++;
+            
             const container = document.getElementById('fireworksContainer');
             const colorSchemes = [
                 { center: '#ff00ff', particles: ['#ff00ff', '#ff1493', '#ff69b4', '#ffb6c1'], rocket: '#ff00ff', trail: '#ff1493' },
@@ -1138,8 +1243,9 @@
             rocket.style.setProperty('--rise-duration', riseDuration + 'ms');
             container.appendChild(rocket);
             
-            // 创建尾迹
-            for (let i = 0; i < 5; i++) {
+            // 创建尾迹 - 移动端减少
+            const trailCount = isLowPerformance ? 2 : (window.innerWidth < 768 ? 3 : 5);
+            for (let i = 0; i < trailCount; i++) {
                 const trail = document.createElement('div');
                 trail.className = 'firework-trail';
                 trail.style.left = (startX + (Math.random() - 0.5) * 10) + 'px';
@@ -1152,9 +1258,9 @@
                 setTimeout(() => trail.remove(), riseDuration);
             }
             
-            // 上升完成后爆炸
+            // 上升完成后爆炸 - 移动端减少粒子数量
             setTimeout(() => {
-                const particleCount = 50;
+                const particleCount = isLowPerformance ? 15 : (window.innerWidth < 768 ? 25 : 50);
                 
                 // 创建爆炸中心
                 const center = document.createElement('div');
@@ -1187,27 +1293,47 @@
                     particle.style.setProperty('--dy', dy + 'px');
                     particle.style.setProperty('--rotation', rotation + 'deg');
                     
-                    container.appendChild(particle);
-                    setTimeout(() => particle.remove(), 1500);
-                }
-                
-                setTimeout(() => center.remove(), 600);
-                setTimeout(() => rocket.remove(), 100);
-            }, riseDuration);
+                container.appendChild(particle);
+                setTimeout(() => {
+                    particle.remove();
+                    if (--activeFireworks < 0) activeFireworks = 0;
+                }, 1500);
+            }
+            
+            setTimeout(() => {
+                center.remove();
+                if (--activeFireworks < 0) activeFireworks = 0;
+            }, 600);
+            setTimeout(() => {
+                rocket.remove();
+                if (--activeFireworks < 0) activeFireworks = 0;
+            }, 100);
+        }, riseDuration);
         }
 
+        // 性能检测和优化
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const isLowPerformance = isMobile && (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+        
+        // 限制同时存在的烟花数量
+        let activeFireworks = 0;
+        const maxActiveFireworks = isLowPerformance ? 1 : (window.innerWidth < 768 ? 2 : 5);
+        
         function startFireworks() {
+            // 移动端大幅降低频率和粒子数量
+            const interval = isLowPerformance ? 5000 : (window.innerWidth < 768 ? 3000 : 1500);
+            
             setInterval(() => {
                 // 从底部随机位置升起
                 const startX = Math.random() * window.innerWidth;
-                const startY = window.innerHeight - 20; // 从底部开始
+                const startY = window.innerHeight - 20;
                 
                 // 目标爆炸位置在上半部分
-                const targetX = startX + (Math.random() - 0.5) * 100; // 稍微偏移
+                const targetX = startX + (Math.random() - 0.5) * 100;
                 const targetY = Math.random() * (window.innerHeight * 0.5) + 50;
                 
                 createFirework(startX, startY, targetX, targetY);
-            }, 800);
+            }, interval);
         }
 
         // 加载页
@@ -1218,11 +1344,15 @@
             }, 1200);
         });
 
-        // 飘动画元素
+        // 飘动画元素 - 移动端优化
         function createFloatingElements() {
             const container = document.getElementById('floatingElements');
-            const elements = ['✨', '⭐', '🎈', '🎉', '💫', '🌟', '💖', '🎊'];
-            const count = window.innerWidth < 768 ? 10 : 20;
+            const elements = ['✨', '⭐', '🎈', '🎉', '💫', '🌟'];
+            const isMobileDevice = window.innerWidth < 768;
+            // 低性能设备进一步减少或禁用
+            const count = isLowPerformance ? 0 : (isMobileDevice ? 3 : 15);
+            
+            if (count === 0) return; // 低性能设备完全禁用
             
             for (let i = 0; i < count; i++) {
                 const element = document.createElement('div');
@@ -1255,24 +1385,16 @@
             
             blessingText.style.transition = 'opacity 0.2s, transform 0.2s';
             blessingText.style.opacity = '0';
-            blessingText.style.transform = 'translateY(-15px)';
+            blessingText.style.transform = 'translate3d(0, -10px, 0)';
             
             setTimeout(() => {
-                blessingText.textContent = '';
-                blessingText.style.transform = 'translateY(10px)';
+                blessingText.textContent = newBlessing;
+                blessingText.style.transform = 'translate3d(0, 5px, 0)';
                 
-                let index = 0;
-                function typeWriter() {
-                    if (index < newBlessing.length) {
-                        blessingText.textContent += newBlessing.charAt(index);
-                        index++;
-                        setTimeout(typeWriter, 30);
-                    } else {
-                        blessingText.style.opacity = '1';
-                        blessingText.style.transform = 'translateY(0)';
-                    }
-                }
-                typeWriter();
+                setTimeout(() => {
+                    blessingText.style.opacity = '1';
+                    blessingText.style.transform = 'translate3d(0, 0, 0)';
+                }, 10);
             }, 200);
         }
 
@@ -1349,16 +1471,17 @@
                 { light: '#ffeb3b', main: '#ffc107' }
             ];
 
-            for (let i = 0; i < 20; i++) {
+            for (let i = 0; i < 10; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'particle';
-                const angle = (Math.PI * 2 * i) / 20;
+                const angle = (Math.PI * 2 * i) / 10;
                 const distance = 60 + Math.random() * 50;
                 const velocity = 1 + Math.random() * 0.5;
                 const color = particleColors[Math.floor(Math.random() * particleColors.length)];
                 
-                particle.style.width = (3 + Math.random() * 5) + 'px';
-                particle.style.height = particle.style.width;
+                const size = 3 + Math.random() * 1; // 统一3-4px
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
                 particle.style.setProperty('--tx', Math.cos(angle) * distance * velocity + 'px');
                 particle.style.setProperty('--ty', Math.sin(angle) * distance * velocity + 'px');
                 particle.style.setProperty('--rotation', (Math.random() * 720 - 360) + 'deg');
@@ -1366,7 +1489,7 @@
                 particle.style.setProperty('--particle-color-light', color.light);
                 
                 particles.appendChild(particle);
-                setTimeout(() => particle.remove(), 1200);
+                setTimeout(() => particle.remove(), 600);
             }
         });
 
@@ -1435,7 +1558,10 @@
                     wallInput.value = '';
                     wallSubmit.classList.remove('loading');
                     blessingCount.textContent = parseInt(blessingCount.textContent) + 1;
-                    wallMessages.scrollTop = 0;
+                    // 只滚动祝福墙内部，不影响整个页面
+                    requestAnimationFrame(() => {
+                        wallMessages.scrollTop = 0;
+                    });
                 }, 800);
             }
         });
@@ -1448,38 +1574,46 @@
 
         // 返回顶部
         const backToTop = document.getElementById('backToTop');
+        let scrollTimeout;
         window.addEventListener('scroll', () => {
-            if (window.scrollY > 500) {
-                backToTop.classList.add('show');
-            } else {
-                backToTop.classList.remove('show');
-            }
-        });
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                if (window.scrollY > 500) {
+                    backToTop.classList.add('show');
+                } else {
+                    backToTop.classList.remove('show');
+                }
+            }, 10);
+        }, { passive: true });
         
-        backToTop.addEventListener('click', () => {
+        backToTop.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
-        // 双击屏幕特效
-        let lastClickTime = 0;
-        document.addEventListener('click', (e) => {
-            if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
-            
-            const now = Date.now();
-            if (now - lastClickTime < 300) {
-                // 双击触发
-                for (let i = 0; i < 10; i++) {
-                    setTimeout(() => {
-                        const startX = e.clientX + (Math.random() - 0.5) * 100;
-                        const startY = window.innerHeight - 20;
-                        const targetX = e.clientX + (Math.random() - 0.5) * 200;
-                        const targetY = e.clientY + (Math.random() - 0.5) * 200;
-                        createFirework(startX, startY, targetX, targetY);
-                    }, i * 50);
+        // 双击屏幕特效 - 仅桌面端
+        if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+            let lastClickTime = 0;
+            document.addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
+                
+                const now = Date.now();
+                if (now - lastClickTime < 300) {
+                    // 双击触发
+                    for (let i = 0; i < 10; i++) {
+                        setTimeout(() => {
+                            const startX = e.clientX + (Math.random() - 0.5) * 100;
+                            const startY = window.innerHeight - 20;
+                            const targetX = e.clientX + (Math.random() - 0.5) * 200;
+                            const targetY = e.clientY + (Math.random() - 0.5) * 200;
+                            createFirework(startX, startY, targetX, targetY);
+                        }, i * 50);
+                    }
                 }
-            }
-            lastClickTime = now;
-        });
+                lastClickTime = now;
+            });
+        }
 
         // 滑动手势解锁祝福
         let touchStartY = 0;
@@ -1500,7 +1634,7 @@
             }
         });
 
-        // 摇一摇切换主题
+        // 摇一摇切换主题 - 优化阈值
         let lastShakeTime = 0;
         if (window.DeviceMotionEvent) {
             window.addEventListener('devicemotion', (e) => {
@@ -1510,7 +1644,8 @@
                 const shake = Math.abs(acceleration.x) + Math.abs(acceleration.y) + Math.abs(acceleration.z);
                 const now = Date.now();
                 
-                if (shake > 30 && now - lastShakeTime > 2000) {
+                // 提高阈值，避免误触发
+                if (shake > 50 && now - lastShakeTime > 3000) {
                     lastShakeTime = now;
                     themeToggle.click();
                     const startX = window.innerWidth / 2;
@@ -1522,22 +1657,24 @@
             });
         }
 
-        // 粒子拖尾效果
-        let lastTrailTime = 0;
-        document.addEventListener('mousemove', (e) => {
-            const now = Date.now();
-            if (now - lastTrailTime < 50) return; // 限制频率
-            lastTrailTime = now;
+        // 粒子拖尾效果 - 仅桌面端
+        if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+            let lastTrailTime = 0;
+            document.addEventListener('mousemove', (e) => {
+                const now = Date.now();
+                if (now - lastTrailTime < 50) return;
+                lastTrailTime = now;
 
-            const particle = document.createElement('div');
-            particle.className = 'trail-particle';
-            particle.style.left = e.clientX + 'px';
-            particle.style.top = e.clientY + 'px';
-            particle.textContent = ['✨', '💫', '🌟'][Math.floor(Math.random() * 3)];
-            particle.style.color = ['#ff00ff', '#8b00ff', '#00ffff', '#ff1493'][Math.floor(Math.random() * 4)];
-            document.body.appendChild(particle);
-            setTimeout(() => particle.remove(), 800);
-        });
+                const particle = document.createElement('div');
+                particle.className = 'trail-particle';
+                particle.style.left = e.clientX + 'px';
+                particle.style.top = e.clientY + 'px';
+                particle.textContent = ['✨', '💫', '🌟'][Math.floor(Math.random() * 3)];
+                particle.style.color = ['#ff00ff', '#8b00ff', '#00ffff', '#ff1493'][Math.floor(Math.random() * 4)];
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 800);
+            });
+        }
 
         // 滚动触发动画
         const observerOptions = {
@@ -1558,8 +1695,37 @@
             observer.observe(el);
         });
 
+        // 防止移动端滑到底部后自动回弹
+        if (isMobile) {
+            let lastScrollTop = 0;
+            let scrollTimeout;
+            
+            window.addEventListener('scroll', () => {
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                    const scrollHeight = document.documentElement.scrollHeight;
+                    const clientHeight = document.documentElement.clientHeight;
+                    
+                    // 如果已经滑到底部，且检测到向上滚动，阻止回弹
+                    if (currentScrollTop + clientHeight >= scrollHeight - 5) {
+                        if (currentScrollTop < lastScrollTop) {
+                            // 保持在底部位置
+                            window.scrollTo({
+                                top: scrollHeight - clientHeight,
+                                behavior: 'auto'
+                            });
+                        }
+                    }
+                    
+                    lastScrollTop = currentScrollTop;
+                }, 50);
+            }, { passive: true });
+        }
+
         // 初始化
         showBlessing();
     </script>
 </body>
 </html>
+
