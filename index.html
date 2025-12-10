@@ -1084,7 +1084,7 @@
     <section class="hero-section">
         <div class="floating-elements" id="floatingElements"></div>
         <h1 class="main-title">亲爱的你，生日快乐！<span class="emoji-flow">🎂🎉✨</span></h1>
-        <div class="date-display">今天是12月8日 ✨</div>
+        <div class="date-display" id="dateDisplay">正在加载日期...</div>
     </section>
 
     <!-- 祝福区 -->
@@ -1133,35 +1133,35 @@
             <div class="wall-message">
                 <div>生日快乐，平安喜乐～✨</div>
                 <div class="wall-message-actions">
-                    <button class="like-btn" onclick="toggleLike(this)">❤️ <span class="like-count">0</span></button>
+                    <button class="like-btn" onclick="toggleLike(this)">❤️ <span class="like-count"></span></button>
                     <button class="reply-btn">💬 回复</button>
                 </div>
             </div>
             <div class="wall-message">
                 <div>新岁，万事顺意🎉</div>
                 <div class="wall-message-actions">
-                    <button class="like-btn" onclick="toggleLike(this)">❤️ <span class="like-count">0</span></button>
+                    <button class="like-btn" onclick="toggleLike(this)">❤️ <span class="like-count"></span></button>
                     <button class="reply-btn">💬 回复</button>
                 </div>
             </div>
             <div class="wall-message">
                 <div>生日愉快，日日欢喜～💫</div>
                 <div class="wall-message-actions">
-                    <button class="like-btn" onclick="toggleLike(this)">❤️ <span class="like-count">0</span></button>
+                    <button class="like-btn" onclick="toggleLike(this)">❤️ <span class="like-count"></span></button>
                     <button class="reply-btn">💬 回复</button>
                 </div>
             </div>
             <div class="wall-message">
                 <div>岁岁常欢愉，年年皆胜意～🎂</div>
                 <div class="wall-message-actions">
-                    <button class="like-btn" onclick="toggleLike(this)">❤️ <span class="like-count">0</span></button>
+                    <button class="like-btn" onclick="toggleLike(this)">❤️ <span class="like-count"></span></button>
                     <button class="reply-btn">💬 回复</button>
                 </div>
             </div>
             <div class="wall-message">
                 <div>愿你，生日快乐，不止今日～🌟</div>
                 <div class="wall-message-actions">
-                    <button class="like-btn" onclick="toggleLike(this)">❤️ <span class="like-count">0</span></button>
+                    <button class="like-btn" onclick="toggleLike(this)">❤️ <span class="like-count"></span></button>
                     <button class="reply-btn">💬 回复</button>
                 </div>
             </div>
@@ -1546,10 +1546,11 @@
                 setTimeout(() => {
                     const messageDiv = document.createElement('div');
                     messageDiv.className = 'wall-message';
+                    const randomLikeCount = getRandomLikeCount();
                     messageDiv.innerHTML = `
                         <div>${message}</div>
                         <div class="wall-message-actions">
-                            <button class="like-btn" onclick="toggleLike(this)">❤️ <span class="like-count">0</span></button>
+                            <button class="like-btn" onclick="toggleLike(this)">❤️ <span class="like-count">${randomLikeCount}</span></button>
                             <button class="reply-btn">💬 回复</button>
                         </div>
                     `;
@@ -1723,8 +1724,73 @@
             }, { passive: true });
         }
 
+        // 获取北京时间
+        function getBeijingTime() {
+            try {
+                const now = new Date();
+                // 获取UTC时间
+                const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+                // 转换为北京时间（UTC+8）
+                const beijingTime = new Date(utc + (8 * 3600000));
+                return beijingTime;
+            } catch (e) {
+                console.error('获取北京时间失败:', e);
+                return new Date();
+            }
+        }
+
+        // 更新日期显示
+        function updateDateDisplay() {
+            try {
+                const dateDisplay = document.getElementById('dateDisplay');
+                if (!dateDisplay) return;
+                
+                const beijingTime = getBeijingTime();
+                const month = beijingTime.getMonth() + 1;
+                const date = beijingTime.getDate();
+                dateDisplay.textContent = `今天是${month}月${date}日 ✨`;
+            } catch (e) {
+                console.error('日期更新失败:', e);
+                const dateDisplay = document.getElementById('dateDisplay');
+                if (dateDisplay) {
+                    dateDisplay.textContent = '今天是12月8日 ✨';
+                }
+            }
+        }
+
+        // 生成随机点赞数（200-500）
+        function getRandomLikeCount() {
+            return Math.floor(Math.random() * (500 - 200 + 1)) + 200;
+        }
+
+        // 初始化所有点赞数
+        function initLikeCounts() {
+            try {
+                const likeCounts = document.querySelectorAll('.like-count');
+                likeCounts.forEach(countSpan => {
+                    if (!countSpan.textContent || countSpan.textContent.trim() === '' || countSpan.textContent === '0') {
+                        countSpan.textContent = getRandomLikeCount();
+                    }
+                });
+            } catch (e) {
+                console.error('点赞数初始化失败:', e);
+            }
+        }
+
         // 初始化
-        showBlessing();
+        try {
+            updateDateDisplay();
+            // 每秒更新一次日期（防止跨天）
+            setInterval(updateDateDisplay, 1000);
+            // 初始化点赞数
+            setTimeout(() => {
+                initLikeCounts();
+            }, 100);
+            showBlessing();
+        } catch (e) {
+            console.error('初始化失败:', e);
+            showBlessing();
+        }
     </script>
 </body>
 </html>
